@@ -1,0 +1,237 @@
+<Window x:Class="XiangtanPlanner.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:XiangtanPlanner.ViewModels"
+        mc:Ignorable="d"
+        Title="同成规划" Height="900" Width="1400" Background="#0F1725">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2.3*" />
+            <ColumnDefinition Width="3.7*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,0,0,20" HorizontalAlignment="Stretch">
+            <TextBlock Text="同成规划" FontSize="32" FontWeight="Bold" />
+            <StackPanel Orientation="Horizontal" Margin="40,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="当前聚焦: " FontSize="16" VerticalAlignment="Center" />
+                <TextBox Width="360" Text="{Binding State.WeeklyFocus, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="Auto,0,0,0">
+                <TextBlock Text="今日进度完成度" Margin="20,0,6,0" VerticalAlignment="Center" />
+                <ProgressBar Width="180" Height="16" Minimum="0" Maximum="100" Value="{Binding State.ProgressPercentage}" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Left Panel -->
+        <Border Grid.Row="1" CornerRadius="18" Background="{StaticResource PanelBrush}" Padding="24" Margin="0,0,20,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="项目日历" FontSize="22" FontWeight="Bold" />
+                    <Calendar Margin="0,16,0,16" SelectedDate="{Binding State.SelectedDate, Mode=TwoWay}" DisplayDate="{Binding State.SelectedDate}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                    <TextBlock Text="月度推进" FontSize="18" FontWeight="SemiBold" />
+                    <ListView ItemsSource="{Binding State.MonthlyMilestones}" Margin="0,10,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource PanelSecondaryBrush}" CornerRadius="10" Padding="10" Margin="0,4,0,4">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Target}" FontSize="12" Opacity="0.8" />
+                                        <ProgressBar Minimum="0" Maximum="100" Value="{Binding Progress}" Height="8" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Margin="0,12,0,0">
+                    <TextBlock Text="提醒事项" FontSize="18" FontWeight="SemiBold" />
+                    <ListView ItemsSource="{Binding State.Reminders}" Margin="0,10,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource PanelSecondaryBrush}" CornerRadius="10" Padding="10" Margin="0,4,0,4">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding DueDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" FontSize="12" Opacity="0.8" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button Content="新增提醒" Command="{Binding AddReminderCommand}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Margin="0,12,0,0">
+                    <TextBlock Text="工作小结" FontSize="18" FontWeight="SemiBold" />
+                    <TextBox AcceptsReturn="True" Height="120" TextWrapping="Wrap" Text="{Binding State.WorkSummary, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Right Panel -->
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="1.4*" />
+                <RowDefinition Height="1.6*" />
+            </Grid.RowDefinitions>
+
+            <!-- Work Board -->
+            <Border CornerRadius="18" Background="{StaticResource PanelBrush}" Padding="24" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                        <TextBlock Text="工作看板" FontSize="22" FontWeight="Bold" />
+                        <Button Content="新增工作项" Command="{Binding AddWorkItemCommand}" Margin="20,0,0,0" />
+                    </StackPanel>
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding State.WorkColumns}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="6" Padding="12" Background="{StaticResource PanelSecondaryBrush}" CornerRadius="12">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,10" />
+                                        <ItemsControl ItemsSource="{Binding Cards}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Margin="0,0,0,8" Padding="10" Background="#304366" CornerRadius="10">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                                            <TextBlock Text="{Binding Owner}" FontSize="12" Opacity="0.7" />
+                                                            <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+            <!-- Timeline -->
+            <Border Grid.Row="1" CornerRadius="18" Background="{StaticResource PanelBrush}" Padding="24" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                        <TextBlock Text="时间轴" FontSize="22" FontWeight="Bold" />
+                        <Button Content="新增节点" Command="{Binding AddTimelineCommand}" Margin="20,0,0,0" />
+                    </StackPanel>
+                    <ListView Grid.Row="1" ItemsSource="{Binding State.Timeline}" Margin="0,10,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource PanelSecondaryBrush}" CornerRadius="10" Padding="12" Margin="0,4,0,4">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Schedule, StringFormat='{}{0}'}" FontSize="12" Opacity="0.7" />
+                                        <TextBlock Text="{Binding Description}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <!-- Task and Review -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border CornerRadius="18" Background="{StaticResource PanelBrush}" Padding="24" Margin="0,0,20,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                            <TextBlock Text="任务清单" FontSize="22" FontWeight="Bold" />
+                            <Button Content="新增任务" Command="{Binding AddTaskCommand}" Margin="20,0,0,0" />
+                        </StackPanel>
+                        <ListView Grid.Row="1" ItemsSource="{Binding State.Tasks}" Margin="0,10,0,0">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource PanelSecondaryBrush}" CornerRadius="10" Padding="12" Margin="0,4,0,4">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}" Margin="0,0,10,0" />
+                                                <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Foreground="White" FontWeight="SemiBold" />
+                                            </StackPanel>
+                                            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="40" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                <TextBlock Text="负责人:" Margin="0,0,6,0" />
+                                                <TextBox Width="100" Text="{Binding Owner, UpdateSourceTrigger=PropertyChanged}" />
+                                                <TextBlock Text="截止:" Margin="10,0,6,0" />
+                                                <DatePicker SelectedDate="{Binding DueDate, Mode=TwoWay}" Width="140" />
+                                                <Button Content="删除" Command="{Binding DataContext.RemoveTaskCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" Background="#C94F4F" Margin="10,0,0,0" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1" CornerRadius="18" Background="{StaticResource PanelBrush}" Padding="24">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                            <TextBlock Text="复盘分析" FontSize="22" FontWeight="Bold" />
+                            <Button Content="新增复盘" Command="{Binding AddReviewCommand}" Margin="20,0,0,0" />
+                        </StackPanel>
+                        <ListView Grid.Row="1" ItemsSource="{Binding State.Reviews}" Margin="0,10,0,0">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource PanelSecondaryBrush}" CornerRadius="10" Padding="12" Margin="0,4,0,4">
+                                        <StackPanel>
+                                            <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" FontWeight="SemiBold" />
+                                            <TextBox Text="{Binding Reflection, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" Margin="0,6,0,0" />
+                                            <Button Content="删除" Command="{Binding DataContext.RemoveReviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" Background="#C94F4F" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
